@@ -1,16 +1,1 @@
-# container images
-*.sif
-# targets (objects, metadata, crew)
-_targets/
-# slurm (output and error logs)
-slurm/*
-# data files
-input/*
-# external data
-inst/extdata/*
-# output logs
-*.out
-# qs files
-*.qs
-# save (output and error logs)
-save/*
+# empty for codebase reset
