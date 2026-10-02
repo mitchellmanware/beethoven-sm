@@ -2,12 +2,10 @@
 # Generate all dates in date range.
 
 ################################################################################
-chr_dates <- as.character(
-  seq(
-    as.Date(snakemake@params[["start"]]),
-    as.Date(snakemake@params[["end"]]),
-    by = "day"
-  )
+chr_dates <- amadeus::generate_date_sequence(
+  start = snakemake@params[["start"]],
+  end = snakemake@params[["end"]],
+  subhyphen = FALSE
 )
 
 ################################################################################
