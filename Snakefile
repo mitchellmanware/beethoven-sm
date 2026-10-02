@@ -3,23 +3,27 @@
 configfile: "config/config.yaml"
 
 #######################################################################################
-# Draw date range from configuration file.
-print("BEETHOVEN date range:")
-print(f"  start = {config['chr_daterange']['start']}")
-print(f"  end   = {config['chr_daterange']['end']}")
+print(
+    f"Running {{beethoven}} pipeline: "
+    f"{config['chr_daterange']['start']} - "
+    f"{config['chr_daterange']['end']}"
+)
 
 #######################################################################################
 # Generate all dates in date range.
-rule chr_dates:
-  output:
-    chr_dates = "output/chr_dates.qs"
+rule initiate:
+    output:
+        chr_dates="output/chr_dates.qs",
+        int_years="output/int_years.qs",
+        list_dates="output/list_dates.qs",
+        list_dates_julian="output/list_dates_julian.qs"
 
-  params:
-    start=lambda wildcards: config["chr_daterange"]["start"],
-    end=lambda wildcards: config["chr_daterange"]["end"]
+    params:
+        start=lambda wildcards: config["chr_daterange"]["start"],
+        end=lambda wildcards: config["chr_daterange"]["end"],
 
-  container:
-    "container/sif/container_covariates.sif"
+    container:
+        "container/sif/container_covariates.sif"
 
-  script:
-    "scripts/a01_chr_dates.R"
+    script:
+        "scripts/a01_initiate.R"
