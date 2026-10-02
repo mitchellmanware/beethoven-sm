@@ -7,3 +7,14 @@ configfile: "config/config.yaml"
 print("BEETHOVEN date range:")
 print(f"  start = {config['daterange']['start']}")
 print(f"  end   = {config['daterange']['end']}")
+
+#######################################################################################
+# Generate all dates in date range.
+rule generate_dates:
+  output:
+    chr_dates = "output/chr_dates.txt"
+  params:
+    start=lambda wildcards: config["chr_daterange"]["start"],
+    end=lambda wildcards: config["chr_daterange"]["end"]
+  script:
+    "scripts/a01_chr_dates.R"

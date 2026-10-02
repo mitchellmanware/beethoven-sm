@@ -12,6 +12,6 @@
 # is the only target that needs to be chagne to update the pipeline with a new
 # temporal range. Relevant months and years are are derived from the explicilty
 # defined date range.
-daterange:
+chr_daterange:
   start: "2021-12-31"
   end: "2022-01-01"
