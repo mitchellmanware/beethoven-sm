@@ -3,3 +3,6 @@
 
 # Output files.
 output/*
+
+# Container images.
+container/sif/*
