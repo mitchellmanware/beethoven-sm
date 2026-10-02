@@ -1,1 +1,2 @@
-# empty for codebase reset
+# Ignore .snakemake/ files created at runtime.
+.snakemake/

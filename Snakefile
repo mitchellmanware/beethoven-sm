@@ -10,8 +10,7 @@ print(f"  end   = {config['chr_daterange']['end']}")
 
 #######################################################################################
 # Generate all dates in date range.
-rule generate_dates:
-
+rule chr_dates:
   output:
     chr_dates = "output/chr_dates.txt"
 
