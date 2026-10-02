@@ -12,7 +12,7 @@ print(f"  end   = {config['chr_daterange']['end']}")
 # Generate all dates in date range.
 rule chr_dates:
   output:
-    chr_dates = "output/chr_dates.txt"
+    chr_dates = "output/chr_dates.qs"
 
   params:
     start=lambda wildcards: config["chr_daterange"]["start"],

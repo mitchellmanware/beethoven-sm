@@ -1,2 +1,5 @@
 # Ignore .snakemake/ files created at runtime.
 .snakemake/
+
+# Output files.
+output/*

@@ -3,11 +3,11 @@
 
 ################################################################################
 chr_dates <- amadeus::generate_date_sequence(
-  start = snakemake@params[["start"]],
-  end = snakemake@params[["end"]],
-  subhyphen = FALSE
+  date_start = snakemake@params[["start"]],
+  date_end = snakemake@params[["end"]],
+  sub_hyphen = FALSE
 )
 
 ################################################################################
-# OUT output/chr_dates.txt
-writeLines(chr_dates, snakemake@output[["chr_dates"]])
+# OUT output/chr_dates.qs
+qs2::qs_save(chr_dates, snakemake@output[["chr_dates"]])
