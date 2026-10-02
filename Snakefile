@@ -18,5 +18,8 @@ rule chr_dates:
     start=lambda wildcards: config["chr_daterange"]["start"],
     end=lambda wildcards: config["chr_daterange"]["end"]
 
+  container:
+    "container/sif/container_covariates.sif"
+
   script:
     "scripts/a01_chr_dates.R"
