@@ -16,5 +16,5 @@ rule all:
         "output/list_narr.qs"
 
 ###############################      PIPELINE RULES      ###############################
-include: "rules/initiate.smk"
-include: "rules/download.smk"
+include: "rules/a01_initiate.smk"
+include: "rules/b01_download.smk"
