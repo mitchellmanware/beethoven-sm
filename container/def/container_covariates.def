@@ -15,12 +15,18 @@ From: rocker/geospatial:latest
     echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
 
     Rscript -e "install.packages(c('pak', 'qs2'))"
-    Rscript -e "pak::pak('NIEHS/amadeus')"
+    Rscript -e "pak::pak('NIEHS/amadeus@narr-hotfix-1005')"
 
 %environment
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     export TERM=xterm-256color
+    
+    # Enforce sterile R environment.
+    export R_ENVIRON_USER=/dev/null
+    export R_PROFILE_USER=/dev/null
+    export R_LIBS_USER=""
+    export R_LIBS_SITE="/usr/local/lib/R/site-library:/usr/local/lib/R/library"
 
 %runscript
     echo "{beethoven} container"

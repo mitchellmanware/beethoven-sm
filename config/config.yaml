@@ -24,3 +24,7 @@ int_radii:
   - 1000
   - 5000
   - 10000
+
+###############################################################################
+# Shared data repository file path.
+chr_dir: "/ddn/gs1/home/manwareme/beethoven/beethoven-sm/input/"

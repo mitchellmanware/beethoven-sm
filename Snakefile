@@ -27,3 +27,19 @@ rule initiate:
 
     script:
         "scripts/a01_initiate.R"
+
+rule download:
+    input:
+        int_years="output/int_years.qs"
+
+    output:
+        list_narr="output/list_narr.qs"
+
+    params:
+        chr_dir=config["chr_dir"]
+
+    container:
+        "container/sif/container_covariates.sif"
+
+    script:
+        "scripts/b01_narr.R"
