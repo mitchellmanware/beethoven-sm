@@ -27,4 +27,4 @@ int_radii:
 
 ###############################################################################
 # Shared data repository file path.
-chr_dir: "/ddn/gs1/home/manwareme/beethoven/beethoven-sm/input/"
+chr_dir: "beethoven/beethoven-sm/input/"

@@ -13,7 +13,7 @@ int_years <- qs2::qs_read(snakemake@input[["int_years"]])
 
 ################################################################################
 # Define NARR variables of interest to be included.
-chr_iter_narr <- c("air.sfc")
+chr_iter_narr <- c("air.sfc", "weasd")
 
 ################################################################################
 # Download NARR data (.nc files) for all variables across all temporal range.

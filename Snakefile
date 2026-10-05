@@ -10,6 +10,12 @@ print(
 )
 
 #######################################################################################
+# Define pipeline endpoint.
+rule all:
+    input:
+        "output/list_narr.qs"
+
+#######################################################################################
 # Generate all dates in date range.
 rule initiate:
     output:
@@ -28,6 +34,8 @@ rule initiate:
     script:
         "scripts/a01_initiate.R"
 
+#######################################################################################
+# Download all data files.
 rule download:
     input:
         int_years="output/int_years.qs"
@@ -36,7 +44,10 @@ rule download:
         list_narr="output/list_narr.qs"
 
     params:
-        chr_dir=config["chr_dir"]
+        chr_dir=os.path.join(
+            os.environ["HOME"],
+            config["chr_dir"],
+        )
 
     container:
         "container/sif/container_covariates.sif"
