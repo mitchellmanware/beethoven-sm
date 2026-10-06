@@ -12,7 +12,7 @@ rule calculate_aqs:
         dt_feat_aqs_sptmpl="output/dt_feat_aqs_sptmpl.qs"
 
     params:
-        chr_dir=os.path.join(
+        chr_config_dir=os.path.join(
             os.environ["HOME"],
             config["chr_config_dir"],
         )

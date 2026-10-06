@@ -8,7 +8,7 @@ rule download_aqs:
         list_dl_aqs="output/list_dl_aqs.qs"
 
     params:
-        chr_dir=os.path.join(
+        chr_config_dir=os.path.join(
             os.environ["HOME"],
             config["chr_config_dir"],
         )
@@ -29,7 +29,7 @@ rule download_narr:
         list_dl_narr="output/list_dl_narr.qs"
 
     params:
-        chr_dir=os.path.join(
+        chr_config_dir=os.path.join(
             os.environ["HOME"],
             config["chr_config_dir"],
         )
@@ -49,7 +49,7 @@ rule download_hms:
         list_dl_hms="output/list_dl_hms.qs"
 
     params:
-        chr_dir=os.path.join(
+        chr_config_dir=os.path.join(
             os.environ["HOME"],
             config["chr_config_dir"],
         )

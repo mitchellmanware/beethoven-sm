@@ -23,17 +23,20 @@ chr_init_dates <- amadeus::generate_date_sequence(
   sub_hyphen = FALSE
 )
 
+################################################################################
 # All included years as integers.
 int_init_years <- unique(lubridate::year(chr_init_dates))
 
+################################################################################
 # Chunks of 100 sequential dates for parallelization. Chunks include only dates
 # within the same year to adhere to {amadeus::download_modis} requirements.
 list_init_dates <- split_dates(
-  dates = c(chr_init_dates[1], chr_dates[length(chr_init_dates)]),
+  dates = c(chr_init_dates[1], chr_init_dates[length(chr_init_dates)]),
   n = 100,
   year = TRUE
 )
 
+################################################################################
 # Chunks of 100 sequential dates in Julian format (YYYYJJJ)
 list_init_datesj <- lapply(list_init_dates, function(x) {
   format(as.Date(x), "%Y%j")
