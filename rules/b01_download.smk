@@ -1,4 +1,24 @@
 ########################################################################################
+##############################            AQS             ##############################
+rule download_aqs:
+    input:
+        int_years="output/int_years.qs"
+
+    output:
+        list_aqs="output/list_aqs.qs"
+
+    params:
+        chr_dir=os.path.join(
+            os.environ["HOME"],
+            config["chr_dir"],
+        )
+
+    container:
+        "container/sif/container_covariates.sif"
+
+    script:
+        "../scripts/b01_aqs.R"
+
 ##############################            NARR            ##############################
 rule download_narr:
     input:
@@ -39,3 +59,5 @@ rule download_hms:
 
     script:
         "../scripts/b03_hms.R"
+
+########################################################################################

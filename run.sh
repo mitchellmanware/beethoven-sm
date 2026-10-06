@@ -1,6 +1,8 @@
 #!/bin/bash
 
+cores="${1:-1}"
+
 snakemake \
-    --cores 1 \
+    --cores "${cores}" \
     --use-apptainer \
     -p

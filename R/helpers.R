@@ -17,15 +17,10 @@ node <- function(node = "gn040815") system(paste0("scontrol show node ", node))
 
 queue <- function() system("squeue -u $USER")
 
-run <- function(cores = 1) {
-  system(
-    glue::glue(
-      "#!/bin/bash \
-      \
-      snakemake --cores {cores} --use-apptainer -p"
-    )
-  )
+run <- function(cores = 1L) {
+  system2("sh", args = c("run.sh", as.integer(cores)))
 }
+
 batch <- function(file = "run.sh") system(paste0("sbatch ", file))
 
 clean <- function(pattern = NULL) system(paste0("rm slurm/*"))
