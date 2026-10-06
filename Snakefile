@@ -13,7 +13,8 @@ print(
 # Define pipeline endpoint.
 rule all:
     input:
-        "output/list_collect.qs"
+        "output/sf_feat_aqs_sp.qs",
+        "output/dt_feat_aqs_sptmpl.qs"
 
 ###############################      PIPELINE RULES      ###############################
 include: "rules/a01_initiate.smk"

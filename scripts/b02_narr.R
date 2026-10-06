@@ -16,7 +16,7 @@ int_years <- qs2::qs_read(snakemake@input[["int_years"]])
 chr_iter_narr <- c("air.sfc", "weasd")
 
 ################################################################################
-list_narr <- amadeus::download_data(
+list_dl_narr <- amadeus::download_data(
   dataset_name = "narr",
   variables = chr_iter_narr,
   directory_to_save = file.path(chr_dir, "narr"),
@@ -27,4 +27,4 @@ list_narr <- amadeus::download_data(
 
 ################################################################################
 qs2::qs_save(chr_iter_narr, snakemake@output[["chr_iter_narr"]])
-qs2::qs_save(list_narr, snakemake@output[["list_narr"]])
+qs2::qs_save(list_dl_narr, snakemake@output[["list_dl_narr"]])

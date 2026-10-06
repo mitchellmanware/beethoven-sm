@@ -11,7 +11,7 @@ chr_dir <- snakemake@params[["chr_dir"]]
 int_years <- qs2::qs_read(snakemake@input[["int_years"]])
 
 ################################################################################
-list_aqs <- amadeus::download_data(
+list_dl_aqs <- amadeus::download_data(
   dataset_name = "aqs",
   directory_to_save = file.path(chr_dir, "aqs"),
   year = int_years,
@@ -21,4 +21,4 @@ list_aqs <- amadeus::download_data(
 )
 
 ################################################################################
-qs2::qs_save(list_aqs, snakemake@output[["list_aqs"]])
+qs2::qs_save(list_dl_aqs, snakemake@output[["list_dl_aqs"]])

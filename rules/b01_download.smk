@@ -5,7 +5,7 @@ rule download_aqs:
         int_years="output/int_years.qs"
 
     output:
-        list_aqs="output/list_aqs.qs"
+        list_dl_aqs="output/list_dl_aqs.qs"
 
     params:
         chr_dir=os.path.join(
@@ -26,7 +26,7 @@ rule download_narr:
 
     output:
         chr_iter_narr="output/chr_iter_narr.qs",
-        list_narr="output/list_narr.qs"
+        list_dl_narr="output/list_dl_narr.qs"
 
     params:
         chr_dir=os.path.join(
@@ -46,7 +46,7 @@ rule download_hms:
         chr_dates="output/chr_dates.qs"
 
     output:
-        list_hms="output/list_hms.qs"
+        list_dl_hms="output/list_dl_hms.qs"
 
     params:
         chr_dir=os.path.join(
