@@ -13,8 +13,9 @@ print(
 # Define pipeline endpoint.
 rule all:
     input:
-        "output/list_narr.qs"
+        "output/list_collect.qs"
 
 ###############################      PIPELINE RULES      ###############################
 include: "rules/a01_initiate.smk"
 include: "rules/b01_download.smk"
+include: "rules/c01_calculate.smk"

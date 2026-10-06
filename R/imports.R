@@ -1,5 +1,5 @@
 ################################################################################
-# Manually define {beethoven} function to limit .sif time (temporary).
+# Manually define {beethoven} functions to limit .sif time (temporary).
 split_dates <- function(
   dates,
   n,
@@ -38,4 +38,12 @@ split_dates <- function(
   } else {
     dates_split
   }
+}
+
+fl_dates <- function(
+  dates
+) {
+  first <- dates[1]
+  last <- dates[length(dates)]
+  c(first, last)
 }
