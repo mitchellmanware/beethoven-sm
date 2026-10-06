@@ -1,0 +1,41 @@
+################################################################################
+# Calculate NARR covariates at unique AQS locations (spatial only).
+
+################################################################################
+# Load libraries and source local functions.
+library(amadeus)
+source("R/beethoven.R")
+
+################################################################################
+# Import configured variables and inputs.
+chr_config_dir <- snakemake@params[["chr_config_dir"]]
+chr_init_dates <- qs2::qs_read(snakemake@input[["chr_init_dates"]])
+chr_iter_narr <- qs2::qs_read(snakemake@input[["chr_iter_narr"]])
+sf_feat_aqs_sp <- qs2::qs_read(snakemake@input[["sf_feat_aqs_sp"]])
+
+################################################################################
+list_feat_narr_sptmpl <- lapply(
+  chr_iter_narr,
+  function(x) {
+    suppressMessages(
+      amadeus::calculate_narr(
+        from = amadeus::process_narr(
+          path = file.path(chr_config_dir, "narr", x),
+          variable = x,
+          date = fl_dates(chr_init_dates)
+        ),
+        locs = sf_feat_aqs_sp,
+        locs_id = "site_id",
+        radius = 0,
+        fun = "mean",
+        geom = FALSE
+      )
+    )
+  }
+)
+
+################################################################################
+dt_feat_narr_sptmpl <- reduce_merge(list_feat_narr_sptmpl)
+
+################################################################################
+qs2::qs_save(dt_feat_narr_sptmpl, snakemake@output[["dt_feat_narr_sptmpl"]])

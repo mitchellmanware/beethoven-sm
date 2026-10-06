@@ -47,3 +47,35 @@ fl_dates <- function(
   last <- dates[length(dates)]
   c(first, last)
 }
+
+reduce_merge <- function(
+  list_in,
+  by = c("site_id", "time"),
+  all.x = TRUE,
+  all.y = FALSE
+) {
+  list_check <- sapply(list_in, nrow)
+  list_checkdiff <- diff(list_check)
+  if (any(list_checkdiff > 0)) {
+    all.y <- TRUE
+  }
+  for (i in seq_along(list_in)) {
+    list_in[[i]] <- data.table::as.data.table(list_in[[i]])
+  }
+
+  Reduce(
+    function(x, y) {
+      if (is.null(by)) {
+        by <- intersect(names(x), names(y))
+      }
+      data.table::merge.data.table(
+        x,
+        y,
+        by = by,
+        all.x = all.x,
+        all.y = all.y
+      )
+    },
+    list_in
+  )
+}

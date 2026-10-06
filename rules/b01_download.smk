@@ -40,7 +40,7 @@ rule download_narr:
     script:
         "../scripts/b02_narr.R"
 
-##############################            HMS            ##############################
+##############################            HMS             ##############################
 rule download_hms:
     input:
         chr_init_dates="output/chr_init_dates.qs"

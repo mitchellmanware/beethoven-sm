@@ -1,5 +1,5 @@
 ########################################################################################
-# Collect download-generated lists for pipeline dispatch anchor.
+##############################            AQS             ##############################
 rule calculate_aqs:
     input:
         chr_init_dates="output/chr_init_dates.qs",
@@ -22,3 +22,29 @@ rule calculate_aqs:
 
     script:
         "../scripts/c01_aqs.R"
+
+##############################            NARR            ##############################
+rule calculate_narr:
+    input:
+        chr_init_dates="output/chr_init_dates.qs",
+        chr_iter_narr="output/chr_iter_narr.qs",
+        sf_feat_aqs_sp="output/sf_feat_aqs_sp.qs",
+
+    output:
+        dt_feat_narr_sptmpl="output/dt_feat_narr_sptmpl.qs"
+
+    params:
+        chr_config_dir=os.path.join(
+            os.environ["HOME"],
+            config["chr_config_dir"],
+        )
+
+    container:
+        "container/sif/container_covariates.sif"
+
+    script:
+        "../scripts/c02_narr.R"
+
+##############################            HMS             ##############################
+
+########################################################################################
