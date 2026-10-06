@@ -2,14 +2,14 @@
 # Generate all dates in date range.
 rule initiate:
     output:
-        chr_dates="output/chr_dates.qs",
-        int_years="output/int_years.qs",
-        list_dates="output/list_dates.qs",
-        list_dates_julian="output/list_dates_julian.qs"
+        chr_init_dates="output/chr_init_dates.qs",
+        int_init_years="output/int_init_years.qs",
+        list_init_dates="output/list_init_dates.qs",
+        list_init_datesj="output/list_init_datesj.qs"
 
     params:
-        start=lambda wildcards: config["chr_daterange"]["start"],
-        end=lambda wildcards: config["chr_daterange"]["end"],
+        start=lambda wildcards: config["chr_config_daterange"]["start"],
+        end=lambda wildcards: config["chr_config_daterange"]["end"],
 
     container:
         "container/sif/container_covariates.sif"

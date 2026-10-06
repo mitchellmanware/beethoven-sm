@@ -1,6 +1,6 @@
 ###############################################################################
 # BEETHOVEN Snakemake configuration (dev)
-# 02 October 2026
+# 06 October 2026
 # Mitchell Manware
 
 ###############################################################################
@@ -12,7 +12,7 @@
 # is the only target that needs to be chagne to update the pipeline with a new
 # temporal range. Relevant months and years are are derived from the explicilty
 # defined date range.
-chr_daterange:
+chr_config_daterange:
   start: "2021-12-01"
   end: "2022-01-31"
 
@@ -20,11 +20,11 @@ chr_daterange:
 # Buffer radii define the buffer distances, in meters, for covariate
 # calculations at all AQS model fitting and H3 grid prediction locations.
 # Buffer radii are 1000 (1km), 5000 (5km), and 10,000 (10km).
-int_radii:
+int_config_radii:
   - 1000
   - 5000
   - 10000
 
 ###############################################################################
 # Shared data repository file path.
-chr_dir: "beethoven/beethoven-sm/input/"
+chr_config_dir: "beethoven/beethoven-sm/input/"

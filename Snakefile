@@ -5,8 +5,8 @@ configfile: "config/config.yaml"
 ########################################################################################
 print(
     f"Running {{beethoven}} pipeline: "
-    f"{config['chr_daterange']['start']} - "
-    f"{config['chr_daterange']['end']}"
+    f"{config['chr_config_daterange']['start']} - "
+    f"{config['chr_config_daterange']['end']}"
 )
 
 ########################################################################################

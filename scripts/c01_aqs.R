@@ -4,12 +4,12 @@
 ################################################################################
 # Load libraries and source local functions.
 library(amadeus)
-source("R/imports.R")
+source("R/beethoven.R")
 
 ################################################################################
 # Import configured variables and inputs.
-chr_dir <- snakemake@params[["chr_dir"]]
-chr_dates <- qs2::qs_read(snakemake@input[["chr_dates"]])
+chr_config_dir <- snakemake@params[["chr_config_dir"]]
+chr_init_dates <- qs2::qs_read(snakemake@input[["chr_init_dates"]])
 
 ################################################################################
 # Import download lists.
@@ -27,8 +27,8 @@ list_dl_collect <- list(
 # !!! Does not import the monitored data values - location unique !!!
 # !!! identifiers and latitude/longitude coordinates only.        !!!
 sf_feat_aqs_sp <- amadeus::process_aqs(
-  path = file.path(chr_dir, "aqs", "data_files"),
-  date = fl_dates(chr_dates),
+  path = file.path(chr_config_dir, "aqs", "data_files"),
+  date = fl_dates(chr_init_dates),
   mode = "location",
   data_field = "Arithmetic.Mean",
   return_format = "sf"
@@ -39,11 +39,11 @@ sf_feat_aqs_sp <- amadeus::process_aqs(
 # across defined time period.
 dt_feat_aqs_sptmpl <- amadeus::process_aqs(
   path = list.files(
-    path = file.path(chr_dir, "aqs", "data_files"),
+    path = file.path(chr_config_dir, "aqs", "data_files"),
     pattern = "daily_88101_[0-9]{4}.csv",
     full.names = TRUE
   ),
-  date = fl_dates(chr_dates),
+  date = fl_dates(chr_init_dates),
   mode = "available-data",
   data_field = c("Arithmetic.Mean", "Event.Type"),
   return_format = "data.table"

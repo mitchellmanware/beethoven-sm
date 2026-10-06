@@ -2,7 +2,7 @@
 # Collect download-generated lists for pipeline dispatch anchor.
 rule calculate_aqs:
     input:
-        chr_dates="output/chr_dates.qs",
+        chr_init_dates="output/chr_init_dates.qs",
         list_dl_aqs="output/list_dl_aqs.qs",
         list_dl_narr="output/list_dl_narr.qs",
         list_dl_hms="output/list_dl_hms.qs"
@@ -14,7 +14,7 @@ rule calculate_aqs:
     params:
         chr_dir=os.path.join(
             os.environ["HOME"],
-            config["chr_dir"],
+            config["chr_config_dir"],
         )
 
     container:

@@ -2,7 +2,7 @@
 ##############################            AQS             ##############################
 rule download_aqs:
     input:
-        int_years="output/int_years.qs"
+        int_init_years="output/int_init_years.qs"
 
     output:
         list_dl_aqs="output/list_dl_aqs.qs"
@@ -10,7 +10,7 @@ rule download_aqs:
     params:
         chr_dir=os.path.join(
             os.environ["HOME"],
-            config["chr_dir"],
+            config["chr_config_dir"],
         )
 
     container:
@@ -22,7 +22,7 @@ rule download_aqs:
 ##############################            NARR            ##############################
 rule download_narr:
     input:
-        int_years="output/int_years.qs"
+        int_init_years="output/int_init_years.qs"
 
     output:
         chr_iter_narr="output/chr_iter_narr.qs",
@@ -31,7 +31,7 @@ rule download_narr:
     params:
         chr_dir=os.path.join(
             os.environ["HOME"],
-            config["chr_dir"],
+            config["chr_config_dir"],
         )
 
     container:
@@ -43,7 +43,7 @@ rule download_narr:
 ##############################            HMS            ##############################
 rule download_hms:
     input:
-        chr_dates="output/chr_dates.qs"
+        chr_init_dates="output/chr_init_dates.qs"
 
     output:
         list_dl_hms="output/list_dl_hms.qs"
@@ -51,7 +51,7 @@ rule download_hms:
     params:
         chr_dir=os.path.join(
             os.environ["HOME"],
-            config["chr_dir"],
+            config["chr_config_dir"],
         )
 
     container:
