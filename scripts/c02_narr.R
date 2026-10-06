@@ -38,4 +38,7 @@ list_feat_narr_sptmpl <- lapply(
 dt_feat_narr_sptmpl <- reduce_merge(list_feat_narr_sptmpl)
 
 ################################################################################
-qs2::qs_save(dt_feat_narr_sptmpl, snakemake@output[["dt_feat_narr_sptmpl"]])
+qs2::qs_save(
+  data.table::data.table(dt_feat_narr_sptmpl),
+  snakemake@output[["dt_feat_narr_sptmpl"]]
+)

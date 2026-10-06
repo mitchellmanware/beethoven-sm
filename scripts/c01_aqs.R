@@ -51,4 +51,7 @@ dt_feat_aqs_sptmpl <- amadeus::process_aqs(
 
 ################################################################################
 qs2::qs_save(sf_feat_aqs_sp, snakemake@output[["sf_feat_aqs_sp"]])
-qs2::qs_save(dt_feat_aqs_sptmpl, snakemake@output[["dt_feat_aqs_sptmpl"]])
+qs2::qs_save(
+  data.table::data.table(dt_feat_aqs_sptmpl),
+  snakemake@output[["dt_feat_aqs_sptmpl"]]
+)

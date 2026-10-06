@@ -46,5 +46,46 @@ rule calculate_narr:
         "../scripts/c02_narr.R"
 
 ##############################            HMS             ##############################
+rule calculate_hms:
+    input:
+        chr_init_dates="output/chr_init_dates.qs",
+        sf_feat_aqs_sp="output/sf_feat_aqs_sp.qs",
+
+    output:
+        dt_feat_hms_sptmpl="output/dt_feat_hms_sptmpl.qs"
+
+    params:
+        chr_config_dir=os.path.join(
+            os.environ["HOME"],
+            config["chr_config_dir"],
+        )
+
+    container:
+        "container/sif/container_covariates.sif"
+
+    script:
+        "../scripts/c03_hms.R"
+
+##############################           MERGE            ##############################
+rule calculate_merge:
+    input:
+        dt_feat_aqs_sptmpl="output/dt_feat_aqs_sptmpl.qs",
+        dt_feat_narr_sptmpl="output/dt_feat_narr_sptmpl.qs",
+        dt_feat_hms_sptmpl="output/dt_feat_hms_sptmpl.qs"
+
+    output:
+        dt_feat_merge_sptmpl="output/dt_feat_merge_sptmpl.qs"
+
+    params:
+        chr_config_dir=os.path.join(
+            os.environ["HOME"],
+            config["chr_config_dir"],
+        )
+
+    container:
+        "container/sif/container_covariates.sif"
+
+    script:
+        "../scripts/c20_merge.R"
 
 ########################################################################################
