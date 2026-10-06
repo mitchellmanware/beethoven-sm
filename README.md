@@ -54,8 +54,9 @@ With the current configuration, downloads go to `$HOME/beethoven/beethoven-sm/in
 ```mermaid
 flowchart LR
     initiate[initiate] --> years[int_years.qs]
-    initiate -->|chr_dates.qs| hms[download_hms]
+    initiate --> dates[chr_dates.qs]
 
+    dates --> hms[download_hms]
     years --> aqs[download_aqs]
     years --> narr[download_narr]
 
