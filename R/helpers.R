@@ -18,7 +18,7 @@ node <- function(node = "gn040815") system(paste0("scontrol show node ", node))
 queue <- function() system("squeue -u $USER")
 
 run <- function(cores = 1L) {
-  system2("sh", args = c("run.sh", as.integer(cores)))
+  system2("sh", args = c("run1.sh", as.integer(cores)))
 }
 
 batch <- function(file = "run.sh") system(paste0("sbatch ", file))
@@ -26,4 +26,13 @@ batch <- function(file = "run.sh") system(paste0("sbatch ", file))
 clean <- function(pattern = NULL) system(paste0("rm slurm/*"))
 
 gpu <- function() system("nvidia-smi")
+
+cancel <- function(job = NULL) {
+  stopifnot(!is.null(job))
+  if (job == "full") {
+    system("scancel -u $USER")
+  } else {
+    system(paste0("scancel ", job))
+  }
+}
 # nocov end

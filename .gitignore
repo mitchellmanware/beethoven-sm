@@ -9,3 +9,6 @@ output/*
 
 # Container images.
 container/sif/*
+
+# SLURM output.
+slurm/
