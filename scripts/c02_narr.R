@@ -4,6 +4,7 @@
 ################################################################################
 # Load libraries and source local functions.
 library(amadeus)
+source("R/amadeus.R")
 source("R/beethoven.R")
 
 ################################################################################
@@ -14,11 +15,12 @@ chr_iter_narr <- qs2::qs_read(snakemake@input[["chr_iter_narr"]])
 sf_feat_aqs_sp <- qs2::qs_read(snakemake@input[["sf_feat_aqs_sp"]])
 
 ################################################################################
+mirai::daemons(10)
 list_feat_narr_sptmpl <- lapply(
   chr_iter_narr,
   function(x) {
     suppressMessages(
-      amadeus::calculate_narr(
+      calculate_narr_mirai(
         from = amadeus::process_narr(
           path = file.path(chr_config_dir, "narr", x),
           variable = x,
@@ -33,6 +35,7 @@ list_feat_narr_sptmpl <- lapply(
     )
   }
 )
+mirai::daemons(0)
 
 ################################################################################
 dt_feat_narr_sptmpl <- reduce_merge(list_feat_narr_sptmpl)

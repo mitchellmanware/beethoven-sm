@@ -86,6 +86,6 @@ rule calculate_merge:
         "container/sif/container_covariates.sif"
 
     script:
-        "../scripts/c20_merge.R"
+        "../scripts/c99_merge.R"
 
 ########################################################################################

@@ -4,6 +4,7 @@
 ################################################################################
 # Load libraries and source local functions.
 library(amadeus)
+source("R/amadeus.R")
 
 ################################################################################
 # Import configured variables and inputs.
@@ -15,14 +16,15 @@ int_init_years <- qs2::qs_read(snakemake@input[["int_init_years"]])
 chr_iter_narr <- c("air.sfc", "weasd")
 
 ################################################################################
-list_dl_narr <- amadeus::download_data(
-  dataset_name = "narr",
+mirai::daemons(4)
+list_dl_narr <- download_narr_map(
   variables = chr_iter_narr,
   directory_to_save = file.path(chr_config_dir, "narr"),
   year = int_init_years,
   acknowledgement = TRUE,
   hash = FALSE
 )
+mirai::daemons(0)
 
 ################################################################################
 qs2::qs_save(chr_iter_narr, snakemake@output[["chr_iter_narr"]])
