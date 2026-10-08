@@ -16,7 +16,7 @@ int_init_years <- qs2::qs_read(snakemake@input[["int_init_years"]])
 chr_iter_narr <- c("air.sfc", "weasd")
 
 ################################################################################
-mirai::daemons(4)
+mirai::daemons(10)
 list_dl_narr <- download_narr_map(
   variables = chr_iter_narr,
   directory_to_save = file.path(chr_config_dir, "narr"),
