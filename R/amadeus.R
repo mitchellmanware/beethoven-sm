@@ -679,3 +679,549 @@ process_locs_radius_sf <-
       )
     }
   }
+
+################################################################################
+# {download_hms} updated with the mirai optional dispatcher.
+download_hms_map <- function(
+  data_format = "Shapefile",
+  date = c("2018-01-01", "2018-01-01"),
+  directory_to_save = NULL,
+  acknowledgement = FALSE,
+  download = TRUE,
+  remove_command = FALSE,
+  unzip = TRUE,
+  remove_zip = FALSE,
+  show_progress = TRUE,
+  hash = FALSE,
+  max_tries = 20,
+  rate_limit = 2
+) {
+  #### Check acknowledgement
+  amadeus::download_permit(acknowledgement = acknowledgement)
+
+  #### Check for null parameters
+  amadeus::check_for_null_parameters(mget(ls()))
+
+  #### Check dates
+  date <- if (length(date) == 1) rep(date, 2) else date
+  stopifnot(length(date) == 2)
+  date <- date[order(as.Date(date))]
+  if (as.Date(date[1]) < as.Date("2005-08-05")) {
+    stop("NOAA HMS wildfire smoke data begins at August 05, 2005.")
+  }
+
+  #### Directory setup
+  directory_original <- amadeus::download_sanitize_path(directory_to_save)
+  directories <- amadeus::download_setup_dir(directory_original, zip = TRUE)
+  directory_to_download <- directories[1]
+  directory_to_save <- directories[2]
+
+  #### Handle deprecated parameters
+  if (!isTRUE(download)) {
+    warning(
+      "Setting download=FALSE is deprecated.\n",
+      call. = FALSE
+    )
+  }
+
+  if (remove_command != FALSE) {
+    warning(
+      "Parameter 'remove_command' is deprecated and ignored.\n",
+      call. = FALSE
+    )
+  }
+
+  #### Check for unzip/remove_zip conflict
+  if (unzip == FALSE && remove_zip == TRUE) {
+    stop(paste0(
+      "Arguments unzip = FALSE and remove_zip = TRUE are not ",
+      "acceptable together. Please change one.\n"
+    ))
+  }
+
+  #### Define date sequence
+  date_sequence <- amadeus::generate_date_sequence(
+    date[1],
+    date[2],
+    sub_hyphen = TRUE
+  )
+
+  #### Define URL base
+  base <- "https://satepsanone.nesdis.noaa.gov/pub/FIRE/web/HMS/Smoke_Polygons/"
+
+  if (tolower(data_format) == "shapefile") {
+    data_format <- "Shapefile"
+    suffix <- ".zip"
+    directory_to_cat <- directory_to_download
+  } else if (tolower(data_format) == "kml") {
+    data_format <- "KML"
+    suffix <- ".kml"
+    directory_to_cat <- directory_to_save
+  }
+
+  #### Define all URLs and destination files
+  urls <- paste0(
+    base,
+    data_format,
+    "/",
+    substr(date_sequence, 1, 4),
+    "/",
+    substr(date_sequence, 5, 6),
+    "/hms_smoke",
+    date_sequence,
+    suffix
+  )
+  destfiles <- paste0(
+    directory_to_cat,
+    "hms_smoke_",
+    data_format,
+    "_",
+    date_sequence,
+    suffix
+  )
+  needs_download <- vapply(
+    destfiles,
+    amadeus::check_destfile,
+    FUN.VALUE = logical(1)
+  )
+
+  #### Validate first URL only
+  if (!amadeus::check_url_status(urls[1])) {
+    stop(paste0(
+      "Invalid date returns HTTP code 404. ",
+      "Check `date` parameter.\n"
+    ))
+  }
+
+  #### Retain URLs and destfiles to be downloaded
+  all_urls <- urls[needs_download]
+  all_destfiles <- destfiles[needs_download]
+  stopifnot(length(all_urls) == length(all_destfiles))
+
+  #### Exit early if download = FALSE
+  if (!isTRUE(download)) {
+    message(
+      sprintf(
+        "Skipping download. Found %d files available for download.\n",
+        length(all_urls)
+      )
+    )
+    return(
+      invisible(
+        list(
+          urls = all_urls,
+          destfiles = all_destfiles,
+          n_files = length(all_urls)
+        )
+      )
+    )
+  }
+
+  #### Download files using httr2 (sequential or concurrent with mirai)
+  if (length(all_urls) == 0L) {
+    download_result <- list(success = 0L, failed = 0L, skipped = 0L)
+  } else if (!mirai::daemons_set()) {
+    # Sequential download if mirai daemons are not set.
+    download_result <- amadeus::download_run_method(
+      urls = all_urls,
+      destfiles = all_destfiles,
+      token = NULL, # HMS doesn't use token authentication
+      show_progress = show_progress,
+      max_tries = max_tries,
+      rate_limit = rate_limit
+    )
+  } else {
+    download_result <- download_run_mirai(
+      urls = all_urls,
+      destfiles = all_destfiles,
+      token = NULL, # HMS doesn't use token authentication
+      max_tries = max_tries,
+      rate_limit = rate_limit,
+      daemons = mirai::nextget("n")
+    )
+  }
+
+  #### Handle KML (no unzipping needed)
+  if (data_format == "KML") {
+    unlink(directory_to_download, recursive = TRUE)
+    message("KML files cannot be unzipped.\n")
+    if (hash) {
+      return(amadeus::download_hash(hash = TRUE, directory_to_save))
+    } else {
+      return(invisible(download_result))
+    }
+  }
+
+  #### Unzip downloaded zip files if unzip = TRUE
+  invisible(lapply(
+    all_destfiles,
+    function(x) {
+      amadeus::download_unzip(x, directory_to_save, unzip)
+    }
+  ))
+
+  #### Remove zip files if remove_zip = TRUE
+  amadeus::download_remove_zips(
+    remove = remove_zip,
+    download_name = all_destfiles
+  )
+
+  if (hash) {
+    return(amadeus::download_hash(hash = TRUE, directory_to_save))
+  } else {
+    return(invisible(download_result))
+  }
+}
+
+################################################################################
+# {calculate_hms} updated with the mirai optional dispatcher.
+calculate_hms_map <- function(
+  from,
+  locs,
+  locs_id = NULL,
+  radius = 0,
+  weights = NULL,
+  .by_time = NULL,
+  frac = FALSE,
+  geom = FALSE,
+  ...
+) {
+  #### check for null parameters (.by_time is optional)
+  params_check <- mget(ls())
+  params_check[c(".by_time", "weights")] <- NULL
+  amadeus::check_for_null_parameters(params_check)
+  amadeus::check_unsupported_by(..., .call = sys.call())
+  amadeus::check_by_time(.by_time)
+  if (!is.logical(frac) || length(frac) != 1L || is.na(frac)) {
+    stop("`frac` should be a single logical value (TRUE/FALSE).")
+  }
+  #### from == character indicates no wildfire smoke plumes are present
+  #### return 0 for all densities, locs and dates
+  if (is.character(from)) {
+    amadeus::check_geom(geom)
+    message(paste0(
+      "Inherited list of dates due to absent smoke plume polygons.\n"
+    ))
+    zero_value <- if (isTRUE(frac)) 0 else 0L
+    skip_df <- data.frame(
+      as.POSIXlt(from),
+      zero_value,
+      zero_value,
+      zero_value
+    )
+    colnames(skip_df) <- c(
+      "time",
+      paste0("light_", sprintf("%05d", radius)),
+      paste0("medium_", sprintf("%05d", radius)),
+      paste0("heavy_", sprintf("%05d", radius))
+    )
+    # fixed: locs is replicated per the length of from
+    skip_merge <-
+      Reduce(
+        rbind,
+        Map(
+          function(x) {
+            cbind(locs, skip_df[rep(x, nrow(locs)), ])
+          },
+          seq_len(nrow(skip_df))
+        )
+      )
+
+    if (!is.null(.by_time)) {
+      hms_fun_summary <- if (isTRUE(frac)) "mean" else "sum"
+      skip_merge <- amadeus::calc_summarize_by(
+        covar = skip_merge,
+        .by_time = .by_time,
+        fun_summary = hms_fun_summary,
+        locs_id = locs_id
+      )
+      did_summarize <- TRUE
+    } else {
+      did_summarize <- FALSE
+    }
+    if (did_summarize && "time" %in% names(skip_merge)) {
+      skip_merge$time <- as.POSIXct(skip_merge$time, tz = "UTC")
+    }
+    skip_return <- amadeus::calc_return_locs(
+      skip_merge,
+      POSIXt = TRUE,
+      geom = geom,
+      crs = "EPSG:4326"
+    )
+    return(skip_return)
+  }
+  #### prepare locations list
+  sites_list <- amadeus::calc_prepare_locs(
+    from = from,
+    locs = locs,
+    locs_id = locs_id,
+    radius = radius,
+    geom = geom
+  )
+  sites_e <- sites_list[[1]]
+  sites_id <- sites_list[[2]]
+
+  #### generate date sequence for missing polygon patch
+  date_sequence <- amadeus::generate_date_sequence(
+    date_start = as.Date(
+      from$Date[1],
+      format = "%Y%m%d"
+    ),
+    date_end = as.Date(
+      from$Date[nrow(from)],
+      format = "%Y%m%d"
+    ),
+    sub_hyphen = FALSE
+  )
+
+  # Convert {from} to a list
+  list_from <- lapply(date_sequence, function(x) from[from$Date == x])
+
+  # Define shared arguments (includes mirai detection)
+  shared_args <- list(
+    sites_e = sites_e,
+    sites_id = sites_id,
+    locs_id = locs_id,
+    radius = radius,
+    frac = frac,
+    mirai = mirai::daemons_set()
+  )
+
+  if (shared_args$mirai) {
+    mirai::require_daemons()
+    # Dispatch calc_hms_extract across {mirai} daemons.
+    message(sprintf(
+      "Running across %02d {mirai} daemons.",
+      mirai::nextget("n")
+    ))
+    list_wrapped <- lapply(list_from, terra::wrap)
+    shared_args$sites_e <- terra::wrap(shared_args$sites_e)
+    jobs <- do.call(
+      mirai::mirai_map,
+      list(.x = list_wrapped, .f = calc_hms_extract, .args = shared_args)
+    )
+    list_extracted <- mirai::collect_mirai(jobs, options = ".stop")
+  } else {
+    # Dispatch calc_hms_extract in sequence
+    message("Running in sequence.")
+    list_extracted <- do.call(
+      lapply,
+      c(list(X = list_from, FUN = calc_hms_extract), shared_args)
+    )
+  }
+
+  ### Merge data.frame in list
+  sites_extracted <- do.call(rbind, list_extracted)
+
+  binary_colname <- paste0(
+    tolower(c("Light", "Medium", "Heavy")),
+    "_",
+    sprintf("%05d", radius)
+  )
+
+  #### define column names
+  colname_common <- c(locs_id, "time", binary_colname)
+  if (geom %in% c("sf", "terra")) {
+    sites_extracted <-
+      merge(sites_extracted, sites_id, by = locs_id)
+    sites_extracted <-
+      stats::setNames(
+        sites_extracted,
+        c(colname_common, "geometry")
+      )
+  } else {
+    sites_extracted <-
+      stats::setNames(
+        sites_extracted,
+        colname_common
+      )
+  }
+  # Filling NAs to 0 for smoke columns
+  for (smoke_col in binary_colname) {
+    sites_extracted[[smoke_col]][is.na(sites_extracted[[smoke_col]])] <-
+      if (isTRUE(frac)) 0 else 0L
+  }
+
+  if (!is.null(.by_time)) {
+    hms_fun_summary <- if (isTRUE(frac)) "mean" else "sum"
+    sites_extracted <- amadeus::calc_summarize_by(
+      covar = sites_extracted,
+      .by_time = .by_time,
+      fun_summary = hms_fun_summary,
+      locs_id = locs_id
+    )
+    did_summarize <- TRUE
+  } else {
+    did_summarize <- FALSE
+  }
+
+  #### date to POSIXct
+  if ("time" %in% names(sites_extracted)) {
+    sites_extracted$time <- as.POSIXct(sites_extracted$time)
+  }
+  #### order by date
+  sites_extracted_ordered <- as.data.frame(
+    sites_extracted[order(sites_extracted$time), ]
+  )
+  sites_extracted_ordered <- amadeus::calc_return_locs(
+    covar = sites_extracted,
+    POSIXt = TRUE,
+    geom = geom,
+    crs = terra::crs(from)
+  )
+  #### return data.frame
+  return(sites_extracted_ordered)
+}
+
+###############################################################################
+# {calculate_hms}-specific extraction function for dispatch with {lapply}
+# or {mirai::mirai_map} updated with the mirai optional dispatcher.
+calc_hms_extract <- function(
+  from,
+  sites_e,
+  sites_id,
+  locs_id,
+  radius,
+  frac,
+  mirai
+) {
+  from <- if (mirai) terra::unwrap(from) else from
+  sites_e <- if (mirai) terra::unwrap(sites_e) else sites_e
+  date <- unique(from$Date)
+  ### Expand full spatiotemporal range
+  data_template <- expand.grid(
+    id = sites_id[[locs_id]],
+    time = date
+  )
+  data_template <- stats::setNames(data_template, c(locs_id, "time"))
+  is_point_locs <- all(
+    tolower(terra::geomtype(sites_e)) %in% c("points", "point")
+  )
+
+  if (nrow(from) == 0) {
+    sites_extracted_layer <- data.frame(
+      setNames(list(character(0)), locs_id),
+      Date = character(0),
+      Density = character(0),
+      base_value = numeric(0)
+    )
+  } else if (radius == 0 && is_point_locs) {
+    sites_extracted_layer <- terra::extract(from, sites_e)
+    sites_extracted_layer$id.y <- unlist(
+      sites_e[[locs_id]]
+    )[sites_extracted_layer$id.y]
+
+    names(sites_extracted_layer)[
+      names(sites_extracted_layer) == "id.y"
+    ] <- locs_id
+
+    sites_extracted_layer$base_value <- 1
+  } else {
+    intersections <- terra::intersect(sites_e, from)
+
+    if (nrow(intersections) > 0) {
+      inter_area <- terra::expanse(intersections)
+      sites_extracted_layer <- terra::as.data.frame(intersections)
+
+      if (isTRUE(frac)) {
+        site_area <- terra::expanse(sites_e)
+        site_lookup <- setNames(site_area, as.character(sites_e[[locs_id]]))
+        denom <- as.numeric(
+          site_lookup[as.character(sites_extracted_layer[[locs_id]])]
+        )
+        denom[!is.finite(denom) | denom <= 0] <- NA_real_
+        sites_extracted_layer$base_value <- inter_area / denom
+        sites_extracted_layer$base_value[
+          !is.finite(sites_extracted_layer$base_value)
+        ] <- 0
+      } else {
+        sites_extracted_layer$base_value <- 1
+      }
+    } else {
+      sites_extracted_layer <- data.frame(
+        setNames(list(character(0)), locs_id),
+        Date = character(0),
+        Density = character(0),
+        base_value = numeric(0)
+      )
+    }
+  }
+
+  # remove unmatched extraction placeholders before aggregating
+  if (nrow(sites_extracted_layer) > 0) {
+    sites_extracted_layer <- sites_extracted_layer[
+      !is.na(sites_extracted_layer$Date) &
+        !is.na(sites_extracted_layer$Density),
+      ,
+      drop = FALSE
+    ]
+  }
+  # remove duplicates and aggregate by site/date/density
+  if (nrow(sites_extracted_layer) > 0) {
+    sites_extracted_layer <- unique(
+      sites_extracted_layer[, c(locs_id, "Date", "Density", "base_value")]
+    )
+    sites_extracted_layer <- stats::aggregate(
+      base_value ~ .,
+      data = sites_extracted_layer,
+      FUN = sum
+    )
+
+    if (!isTRUE(frac)) {
+      sites_extracted_layer$base_value <- as.integer(
+        sites_extracted_layer$base_value > 0
+      )
+    } else {
+      sites_extracted_layer$base_value <- pmin(
+        sites_extracted_layer$base_value,
+        1
+      )
+    }
+  }
+
+  #### merge with site_id and date
+  sites_extracted_layer <-
+    tidyr::pivot_wider(
+      data = sites_extracted_layer,
+      names_from = "Density",
+      values_from = "base_value",
+      id_cols = dplyr::all_of(c(locs_id, "Date")),
+      values_fill = list(base_value = 0)
+    )
+
+  # Fill in missing columns
+  levels_acceptable <- c("Light", "Medium", "Heavy")
+  # Detect missing columns
+  col_tofill <- setdiff(levels_acceptable, names(sites_extracted_layer))
+
+  # Fill zeros
+  if (length(col_tofill) > 0) {
+    sites_extracted_layer[col_tofill] <- if (isTRUE(frac)) 0 else 0L
+  }
+  col_order <- c(locs_id, "Date", levels_acceptable)
+  sites_extracted_layer <- sites_extracted_layer[, col_order]
+  sites_extracted_layer <- stats::setNames(
+    sites_extracted_layer,
+    c(locs_id, "time", levels_acceptable)
+  )
+
+  binary_colname <- paste0(
+    tolower(levels_acceptable),
+    "_",
+    sprintf("%05d", radius)
+  )
+  sites_extracted_layer <- stats::setNames(
+    sites_extracted_layer,
+    c(locs_id, "time", binary_colname)
+  )
+
+  # Join full space-time pairs with extracted data
+  site_extracted <- merge(
+    data_template,
+    sites_extracted_layer,
+    by = c(locs_id, "time"),
+    all.x = TRUE
+  )
+  # append list with the extracted data.frame
+  site_extracted
+}
